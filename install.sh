@@ -13,8 +13,7 @@ command -v jq &>/dev/null || { echo "正在安装 jq..."; pacman -Sy --noconfirm
 j() { jq -r "$1" "$CFG"; }
 
 # --- 读取配置 ---
-ROOT_DISK=$(j '.disk.root')
-HOME_DISK=$(j '.disk.home')
+DISK=$(j '.disk.device')
 EFI_SIZE=$(j '.disk.efi_size')
 TIMEZONE=$(j '.locale.timezone')
 LANG_SET=$(j '.locale.lang')
@@ -32,11 +31,9 @@ part_suffix() {
   fi
 }
 
-ROOT_PFX=$(part_suffix "$ROOT_DISK")
-HOME_PFX=$(part_suffix "$HOME_DISK")
-ROOT_P1="${ROOT_PFX}1"
-ROOT_P2="${ROOT_PFX}2"
-HOME_P1="${HOME_PFX}1"
+DISK_PFX=$(part_suffix "$DISK")
+EFI_PART="${DISK_PFX}1"
+ROOT_PART="${DISK_PFX}2"
 
 BTRFS_OPTS="noatime,compress=zstd:3"
 
@@ -69,12 +66,11 @@ MIRROREOF
 # --- 确认 ---
 echo ""
 echo "=== Arch Linux 安装程序 ==="
-echo "系统盘  : $ROOT_DISK (EFI: $ROOT_P1, 根: $ROOT_P2)"
-echo "数据盘  : $HOME_DISK (Home: $HOME_P1)"
+echo "磁盘    : $DISK (EFI: $EFI_PART, 根: $ROOT_PART)"
 echo "主机名  : $HOSTNAME"
 echo "用户名  : $USERNAME"
 echo ""
-echo "警告：这将完全擦除 $ROOT_DISK 和 $HOME_DISK！"
+echo "警告：这将完全擦除 $DISK！"
 read -rp "是否继续？(yes/no): " CONFIRM
 [[ "$CONFIRM" == "yes" ]] || { echo "已取消。"; exit 1; }
 
@@ -84,42 +80,34 @@ read -rsp "请输入 $USERNAME 的密码: " USER_PW; echo
 
 # --- 分区 ---
 log "[1/11] 正在分区..."
-sgdisk -Z "$ROOT_DISK"
-sgdisk -n 1:0:+"$EFI_SIZE" -t 1:ef00 "$ROOT_DISK"
-sgdisk -n 2:0:0 -t 2:8300 "$ROOT_DISK"
-
-sgdisk -Z "$HOME_DISK"
-sgdisk -n 1:0:0 -t 1:8300 "$HOME_DISK"
+sgdisk -Z "$DISK"
+sgdisk -n 1:0:+"$EFI_SIZE" -t 1:ef00 "$DISK"
+sgdisk -n 2:0:0 -t 2:8300 "$DISK"
 
 # --- 格式化 ---
 log "[2/11] 正在格式化..."
-mkfs.fat -F32 "$ROOT_P1"
-mkfs.btrfs -f "$ROOT_P2"
-mkfs.btrfs -f "$HOME_P1"
+mkfs.fat -F32 "$EFI_PART"
+mkfs.btrfs -f "$ROOT_PART"
 
-# --- 创建 Btrfs 子卷（系统盘）---
+# --- 创建 Btrfs 子卷 ---
 log "[3/11] 正在创建 Btrfs 子卷..."
-mount "$ROOT_P2" /mnt
+mount "$ROOT_PART" /mnt
 btrfs subvolume create /mnt/@
+btrfs subvolume create /mnt/@home
 btrfs subvolume create /mnt/@snapshots
 btrfs subvolume create /mnt/@log
 btrfs subvolume create /mnt/@cache
 umount /mnt
 
-# 数据盘子卷
-mount "$HOME_P1" /mnt
-btrfs subvolume create /mnt/@home
-umount /mnt
-
 # --- 挂载（先根分区，再 boot，再其他）---
 log "[4/11] 正在挂载..."
-mount -o ${BTRFS_OPTS},subvol=@ "$ROOT_P2" /mnt
+mount -o ${BTRFS_OPTS},subvol=@ "$ROOT_PART" /mnt
 mkdir -p /mnt/{boot,home,.snapshots,var/log,var/cache/pacman/pkg}
-mount "$ROOT_P1" /mnt/boot
-mount -o ${BTRFS_OPTS},subvol=@home "$HOME_P1" /mnt/home
-mount -o ${BTRFS_OPTS},subvol=@snapshots "$ROOT_P2" /mnt/.snapshots
-mount -o ${BTRFS_OPTS},subvol=@log "$ROOT_P2" /mnt/var/log
-mount -o ${BTRFS_OPTS},subvol=@cache "$ROOT_P2" /mnt/var/cache/pacman/pkg
+mount "$EFI_PART" /mnt/boot
+mount -o ${BTRFS_OPTS},subvol=@home "$ROOT_PART" /mnt/home
+mount -o ${BTRFS_OPTS},subvol=@snapshots "$ROOT_PART" /mnt/.snapshots
+mount -o ${BTRFS_OPTS},subvol=@log "$ROOT_PART" /mnt/var/log
+mount -o ${BTRFS_OPTS},subvol=@cache "$ROOT_PART" /mnt/var/cache/pacman/pkg
 
 # --- 安装基础系统 ---
 log "[5/11] 正在安装基础系统..."
@@ -242,7 +230,7 @@ SETUP_SCRIPT
 chmod +x /mnt/tmp/setup.sh
 arch-chroot /mnt /tmp/setup.sh \
   "$TIMEZONE" "$LANG_SET" "$HOSTNAME" "$USERNAME" "$USER_SHELL" \
-  "$ROOT_PW" "$USER_PW" "$ROOT_P2"
+  "$ROOT_PW" "$USER_PW" "$ROOT_PART"
 rm -f /mnt/tmp/setup.sh
 
 # --- ufw 默认规则（写配置文件而非运行命令）---
