@@ -158,7 +158,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 bootctl install
 
 cat > /boot/loader/loader.conf <<EOF
-default arch.conf
+default auto-windows
 timeout 3
 console-mode max
 editor  no
