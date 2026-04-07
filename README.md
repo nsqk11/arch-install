@@ -44,7 +44,7 @@
 │  Kernel      │  linux-zen                    │
 │  Boot        │  systemd-boot                 │
 │  Filesystem  │  Btrfs (zstd:3 compression)   │
-│  Swap        │  zram (ram/2, zstd)           │
+│  Swap        │  zram (min(ram/2, 4096), zstd)  │
 │  Firewall    │  ufw (DROP input)             │
 │  Desktop     │  HyDE (Hyprland)              │
 │  Input       │  fcitx5                       │
@@ -140,6 +140,7 @@ post-install 会安装：yay → XMind / 百度网盘 / 微信 → KDE Connect �
 | 百度网盘 | `baidunetdisk-bin` |
 | 微信 | `wechat-universal-bwrap` |
 | Steam | `steam` (multilib) |
+| Portal | `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` |
 | HyDE | git clone + install.sh |
 
 ---
