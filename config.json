@@ -59,6 +59,7 @@
     "timeshift",
     "mpv",
     "kdeconnect",
+    "cifs-utils",
     "bash-completion",
     "libreoffice-fresh",
     "libreoffice-fresh-zh-cn"
