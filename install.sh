@@ -222,7 +222,7 @@ systemctl enable systemd-boot-update.service
 # Wayland 下不设 GTK_IM_MODULE，改用 gtk settings.ini
 mkdir -p "/home/$USERNAME/.config/uwsm"
 cat > "/home/$USERNAME/.config/uwsm/env" <<EOF
-export QT_IM_MODULES=wayland;fcitx
+export QT_IM_MODULES="wayland;fcitx"
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 export SDL_IM_MODULE=fcitx

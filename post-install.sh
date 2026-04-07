@@ -8,7 +8,7 @@ log() { echo "[$(date '+%H:%M:%S')] $*"; }
 if ! command -v yay &>/dev/null; then
   log "[1/5] 正在安装 yay..."
   git clone https://aur.archlinux.org/yay.git /tmp/yay
-  (cd /tmp/yay && makepkg -si)
+  (cd /tmp/yay && makepkg -si --noconfirm)
   rm -rf /tmp/yay
 else
   log "[1/5] yay 已安装，跳过。"
