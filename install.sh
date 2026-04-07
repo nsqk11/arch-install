@@ -197,8 +197,16 @@ EOF
 # zram
 cat > /etc/systemd/zram-generator.conf <<EOF
 [zram0]
-zram-size = ram / 2
+zram-size = min(ram / 2, 4096)
 compression-algorithm = zstd
+EOF
+
+# zram swap 优化参数
+cat > /etc/sysctl.d/99-vm-zram-parameters.conf <<EOF
+vm.swappiness = 180
+vm.watermark_boost_factor = 0
+vm.watermark_scale_factor = 125
+vm.page-cluster = 0
 EOF
 
 # 启用服务
@@ -211,16 +219,24 @@ systemctl enable bluetooth
 systemctl enable systemd-boot-update.service
 
 # fcitx5 环境变量（uwsm 管理的 Hyprland 用 ~/.config/uwsm/env）
+# Wayland 下不设 GTK_IM_MODULE，改用 gtk settings.ini
 mkdir -p "/home/$USERNAME/.config/uwsm"
 cat > "/home/$USERNAME/.config/uwsm/env" <<EOF
-export GTK_IM_MODULE=fcitx
+export QT_IM_MODULES=wayland;fcitx
 export QT_IM_MODULE=fcitx
 export XMODIFIERS=@im=fcitx
 export SDL_IM_MODULE=fcitx
 export INPUT_METHOD=fcitx
 export GLFW_IM_MODULE=ibus
 EOF
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config/uwsm"
+
+mkdir -p "/home/$USERNAME/.config/gtk-3.0"
+cat > "/home/$USERNAME/.config/gtk-3.0/settings.ini" <<EOF
+[Settings]
+gtk-im-module = fcitx
+EOF
+
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config/uwsm" "/home/$USERNAME/.config/gtk-3.0"
 SETUP_SCRIPT
 
 chmod +x /mnt/tmp/setup.sh
