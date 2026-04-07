@@ -1,0 +1,68 @@
+{
+  "wifi": {
+    "ssid": "你的WiFi名",
+    "password": "你的WiFi密码"
+  },
+  "disk": {
+    "root": "/dev/nvme0n1",
+    "home": "/dev/nvme1n1",
+    "efi_size": "1G"
+  },
+  "locale": {
+    "timezone": "Asia/Chongqing",
+    "lang": "en_US.UTF-8",
+    "extra_locales": ["zh_CN.UTF-8 UTF-8", "en_US.UTF-8 UTF-8"]
+  },
+  "hostname": "arch",
+  "user": {
+    "name": "yawei",
+    "shell": "/bin/bash"
+  },
+  "packages": [
+    "base",
+    "linux-zen",
+    "linux-zen-headers",
+    "linux-firmware",
+    "amd-ucode",
+    "btrfs-progs",
+    "networkmanager",
+    "vim",
+    "sudo",
+    "git",
+    "base-devel",
+    "sof-firmware",
+    "man-db",
+    "man-pages",
+    "texinfo",
+    "zram-generator",
+    "pipewire",
+    "pipewire-alsa",
+    "pipewire-pulse",
+    "wireplumber",
+    "noto-fonts-cjk",
+    "libva-mesa-driver",
+    "mesa-vdpau",
+    "vulkan-radeon",
+    "ufw",
+    "fcitx5",
+    "fcitx5-configtool",
+    "fcitx5-gtk",
+    "fcitx5-qt",
+    "fcitx5-chinese-addons",
+    "firefox",
+    "firefox-i18n-zh-cn",
+    "ntfs-3g",
+    "unzip",
+    "unrar",
+    "p7zip",
+    "bluez",
+    "bluez-utils",
+    "timeshift",
+    "mpv",
+    "kdeconnect",
+    "bash-completion",
+    "libreoffice-fresh",
+    "libreoffice-fresh-zh-cn"
+  ],
+  "archlinuxcn": true
+}
