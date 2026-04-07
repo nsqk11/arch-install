@@ -210,15 +210,17 @@ systemctl enable ufw
 systemctl enable bluetooth
 systemctl enable systemd-boot-update.service
 
-# fcitx5 环境变量
-cat > /etc/environment <<EOF
-GTK_IM_MODULE=fcitx
-QT_IM_MODULE=fcitx
-XMODIFIERS=@im=fcitx
-SDL_IM_MODULE=fcitx
-INPUT_METHOD=fcitx
-GLFW_IM_MODULE=ibus
+# fcitx5 环境变量（uwsm 管理的 Hyprland 用 ~/.config/uwsm/env）
+mkdir -p "/home/$USERNAME/.config/uwsm"
+cat > "/home/$USERNAME/.config/uwsm/env" <<EOF
+export GTK_IM_MODULE=fcitx
+export QT_IM_MODULE=fcitx
+export XMODIFIERS=@im=fcitx
+export SDL_IM_MODULE=fcitx
+export INPUT_METHOD=fcitx
+export GLFW_IM_MODULE=ibus
 EOF
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config/uwsm"
 SETUP_SCRIPT
 
 chmod +x /mnt/tmp/setup.sh
@@ -253,7 +255,7 @@ arch-chroot /mnt pacman -Sy --noconfirm
 if [[ "$ARCHLINUXCN" == "true" ]]; then
   arch-chroot /mnt pacman -S --noconfirm archlinuxcn-keyring
 fi
-arch-chroot /mnt pacman -S --noconfirm steam
+arch-chroot /mnt pacman -S --noconfirm steam xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
 
 # --- 复制安装文件到用户目录 ---
 log "[9/11] 正在复制安装文件..."
