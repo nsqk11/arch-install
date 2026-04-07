@@ -4,8 +4,7 @@
     "password": "你的WiFi密码"
   },
   "disk": {
-    "root": "/dev/nvme0n1",
-    "home": "/dev/nvme1n1",
+    "device": "/dev/sda",
     "efi_size": "1G"
   },
   "locale": {

@@ -15,8 +15,8 @@ else
 fi
 
 # --- 安装用户软件 ---
-log "[2/5] 正在安装应用（XMind、百度网盘、微信）..."
-yay -S --noconfirm xmind baidunetdisk-bin wechat-universal-bwrap
+log "[2/5] 正在安装应用（百度网盘、微信）..."
+yay -S --noconfirm baidunetdisk-bin wechat-universal-bwrap
 
 # --- 配置防火墙规则 ---
 log "[3/5] 正在配置防火墙（KDE Connect 端口）..."
