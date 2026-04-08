@@ -1,9 +1,12 @@
 #!/bin/bash
 # Arch Linux 自动安装脚本 — 第二步：chroot 内运行
 # 系统配置 → 仓库设置 → 所有 repo 包安装 → 引导 → 服务
+# Usage: arch-chroot /mnt bash /root/arch-install/chroot-setup.sh
+# shellcheck disable=SC2086
 set -euo pipefail
 
-log() { echo "[$(date '+%H:%M:%S')] $*"; }
+GREEN='\033[0;32m'; NC='\033[0m'
+log() { echo -e "[$(date '+%H:%M:%S')] ${GREEN}$*${NC}"; }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CFG="$SCRIPT_DIR/config.json"

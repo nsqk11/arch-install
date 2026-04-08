@@ -1,15 +1,20 @@
 #!/bin/bash
 # Arch Linux 自动安装脚本 — 第一步：Live USB 环境
-# 分区 → 格式化 → 子卷 → 挂载 → pacstrap → fstab → 进入 chroot
+# 分区 → 格式化 → 子卷 → 挂载 → pacstrap → fstab
+# Usage: bash install.sh
+# shellcheck disable=SC2086
 set -euo pipefail
 
-log() { echo "[$(date '+%H:%M:%S')] $*"; }
-skip() { log "  ↳ 已完成，跳过。"; }
+RED='\033[0;31m'; GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+log()  { echo -e "[$(date '+%H:%M:%S')] ${GREEN}$*${NC}"; }
+warn() { echo -e "[$(date '+%H:%M:%S')] ${YELLOW}⚠ $*${NC}"; }
+err()  { echo -e "[$(date '+%H:%M:%S')] ${RED}✗ $*${NC}" >&2; }
+skip() { echo -e "[$(date '+%H:%M:%S')]   ${YELLOW}↳ 已完成，跳过。${NC}"; }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CFG="$SCRIPT_DIR/config.json"
 
-command -v jq &>/dev/null || { echo "错误：jq 未安装，请使用包含 jq 的 Arch Live ISO。" >&2; exit 1; }
+command -v jq &>/dev/null || { err "jq 未安装，请使用包含 jq 的 Arch Live ISO。"; exit 1; }
 
 j() { jq -r "$1" "$CFG"; }
 
@@ -35,7 +40,7 @@ BTRFS_OPTS="noatime,compress=zstd:3"
 
 # --- 验证 UEFI ---
 if [[ ! -d /sys/firmware/efi/efivars ]]; then
-  echo "错误：未以 UEFI 模式启动！" >&2; exit 1
+  err "未以 UEFI 模式启动！"; exit 1
 fi
 
 # --- 网络检测 ---
@@ -49,7 +54,7 @@ else
     iwctl station wlan0 connect "$WIFI_SSID" --passphrase "$WIFI_PASS"
     sleep 3
   fi
-  ping -c 2 -W 3 archlinux.org || { echo "错误：无网络连接！" >&2; exit 1; }
+  ping -c 2 -W 3 archlinux.org || { err "无网络连接！"; exit 1; }
 fi
 
 # --- 同步时钟 ---

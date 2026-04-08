@@ -1,10 +1,12 @@
 #!/bin/bash
 # Arch Linux 自动安装脚本 — 第三步：重启后以普通用户运行
 # 用户级配置：zsh 环境、snapper 初始化、防火墙规则
+# Usage: ~/arch-install/post-install.sh
 set -euo pipefail
 
-log() { echo "[$(date '+%H:%M:%S')] $*"; }
-skip() { log "  ↳ 已完成，跳过。"; }
+GREEN='\033[0;32m'; YELLOW='\033[1;33m'; NC='\033[0m'
+log()  { echo -e "[$(date '+%H:%M:%S')] ${GREEN}$*${NC}"; }
+skip() { echo -e "[$(date '+%H:%M:%S')]   ${YELLOW}↳ 已完成，跳过。${NC}"; }
 DONE_DIR="$HOME/.local/state/arch-install"
 mkdir -p "$DONE_DIR"
 done_check() { [[ -f "$DONE_DIR/$1" ]]; }
