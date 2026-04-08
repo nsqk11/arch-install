@@ -4,7 +4,7 @@
     "password": "你的WiFi密码"
   },
   "disk": {
-    "device": "/dev/sda",
+    "device": "/dev/sdb",
     "efi_size": "1G"
   },
   "locale": {
@@ -14,9 +14,11 @@
   },
   "hostname": "arch",
   "user": {
-    "name": "yawei",
-    "shell": "/bin/bash"
+    "name": "archie",
+    "shell": "/bin/zsh",
+    "password": "改成你的密码"
   },
+  "root_password": "改成ROOT密码",
   "packages": [
     "base",
     "linux-zen",
@@ -26,29 +28,20 @@
     "btrfs-progs",
     "networkmanager",
     "vim",
-    "sudo",
     "git",
     "base-devel",
     "sof-firmware",
     "man-db",
     "man-pages",
-    "texinfo",
     "zram-generator",
-    "pipewire",
-    "pipewire-alsa",
     "pipewire-pulse",
-    "wireplumber",
     "noto-fonts-cjk",
-    "libva-mesa-driver",
-    "mesa-vdpau",
+    "mesa",
     "vulkan-radeon",
     "ufw",
-    "fcitx5",
     "fcitx5-configtool",
     "fcitx5-gtk",
-    "fcitx5-qt",
     "fcitx5-chinese-addons",
-    "firefox",
     "firefox-i18n-zh-cn",
     "ntfs-3g",
     "unzip",
@@ -56,13 +49,15 @@
     "p7zip",
     "bluez",
     "bluez-utils",
-    "timeshift",
     "mpv",
     "kdeconnect",
     "cifs-utils",
     "bash-completion",
-    "libreoffice-fresh",
-    "libreoffice-fresh-zh-cn"
+    "zsh",
+    "libreoffice-fresh-zh-cn",
+    "plasma",
+    "konsole",
+    "dolphin"
   ],
   "archlinuxcn": true
 }

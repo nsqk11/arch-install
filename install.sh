@@ -1,9 +1,11 @@
 #!/bin/bash
 # Arch Linux 自动安装脚本 — 从 config.json 读取配置
+# 支持断点续跑：已完成的步骤自动跳过
 set -euo pipefail
 
 # 带时间戳的日志输出
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
+skip() { log "  ↳ 已完成，跳过。"; }
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CFG="$SCRIPT_DIR/config.json"
@@ -42,15 +44,18 @@ if [[ ! -d /sys/firmware/efi/efivars ]]; then
   echo "错误：未以 UEFI 模式启动！" >&2; exit 1
 fi
 
-# --- 连接 Wi-Fi ---
-WIFI_SSID=$(j '.wifi.ssid')
-WIFI_PASS=$(j '.wifi.password')
-if [[ "$WIFI_SSID" != "null" && -n "$WIFI_SSID" ]]; then
-  log "[0/11] 正在连接 Wi-Fi: $WIFI_SSID ..."
-  iwctl station wlan0 connect "$WIFI_SSID" --passphrase "$WIFI_PASS"
-  sleep 3
-  ping -c 2 archlinux.org || { echo "Wi-Fi 连接失败！"; exit 1; }
-  echo "Wi-Fi 已连接。"
+# --- 网络检测 ---
+if ping -c 2 -W 3 archlinux.org &>/dev/null; then
+  log "网络已连通，跳过 Wi-Fi 配置。"
+else
+  WIFI_SSID=$(j '.wifi.ssid')
+  WIFI_PASS=$(j '.wifi.password')
+  if [[ "$WIFI_SSID" != "null" && -n "$WIFI_SSID" ]]; then
+    log "正在连接 Wi-Fi: $WIFI_SSID ..."
+    iwctl station wlan0 connect "$WIFI_SSID" --passphrase "$WIFI_PASS"
+    sleep 3
+  fi
+  ping -c 2 -W 3 archlinux.org || { echo "错误：无网络连接！请检查有线或 Wi-Fi。" >&2; exit 1; }
 fi
 
 # --- 同步系统时钟 ---
@@ -63,66 +68,85 @@ cat > /etc/pacman.d/mirrorlist <<'MIRROREOF'
 Server = https://mirrors.ustc.edu.cn/archlinux/$repo/os/$arch
 MIRROREOF
 
-# --- 确认 ---
+# --- 分区 & 格式化（交互确认，可跳过）---
 echo ""
 echo "=== Arch Linux 安装程序 ==="
 echo "磁盘    : $DISK (EFI: $EFI_PART, 根: $ROOT_PART)"
 echo "主机名  : $HOSTNAME"
 echo "用户名  : $USERNAME"
 echo ""
-echo "警告：这将完全擦除 $DISK！"
-read -rp "是否继续？(yes/no): " CONFIRM
-[[ "$CONFIRM" == "yes" ]] || { echo "已取消。"; exit 1; }
+read -rp "是否执行分区+格式化？(yes=擦盘重来 / skip=跳过 / no=取消安装): " DISK_ACTION
+case "$DISK_ACTION" in
+  yes)
+    log "[1/10] 正在分区..."
+    sgdisk -Z "$DISK"
+    sgdisk -n 1:0:+"$EFI_SIZE" -t 1:ef00 "$DISK"
+    sgdisk -n 2:0:0 -t 2:8300 "$DISK"
+
+    log "[2/10] 正在格式化..."
+    mkfs.fat -F32 "$EFI_PART"
+    mkfs.btrfs -f "$ROOT_PART"
+
+    log "[3/10] 正在创建 Btrfs 子卷..."
+    mount "$ROOT_PART" /mnt
+    btrfs subvolume create /mnt/@
+    btrfs subvolume create /mnt/@home
+    btrfs subvolume create /mnt/@snapshots
+    btrfs subvolume create /mnt/@log
+    btrfs subvolume create /mnt/@cache
+    umount /mnt
+    ;;
+  skip)
+    log "跳过分区和格式化。"
+    ;;
+  *)
+    echo "已取消。"; exit 1
+    ;;
+esac
 
 # --- 密码 ---
-read -rsp "请输入 ROOT 密码: " ROOT_PW; echo
-read -rsp "请输入 $USERNAME 的密码: " USER_PW; echo
+ROOT_PW=$(j '.root_password')
+USER_PW=$(j '.user.password')
 
-# --- 分区 ---
-log "[1/11] 正在分区..."
-sgdisk -Z "$DISK"
-sgdisk -n 1:0:+"$EFI_SIZE" -t 1:ef00 "$DISK"
-sgdisk -n 2:0:0 -t 2:8300 "$DISK"
-
-# --- 格式化 ---
-log "[2/11] 正在格式化..."
-mkfs.fat -F32 "$EFI_PART"
-mkfs.btrfs -f "$ROOT_PART"
-
-# --- 创建 Btrfs 子卷 ---
-log "[3/11] 正在创建 Btrfs 子卷..."
-mount "$ROOT_PART" /mnt
-btrfs subvolume create /mnt/@
-btrfs subvolume create /mnt/@home
-btrfs subvolume create /mnt/@snapshots
-btrfs subvolume create /mnt/@log
-btrfs subvolume create /mnt/@cache
-umount /mnt
-
-# --- 挂载（先根分区，再 boot，再其他）---
-log "[4/11] 正在挂载..."
-mount -o ${BTRFS_OPTS},subvol=@ "$ROOT_PART" /mnt
-mkdir -p /mnt/{boot,home,.snapshots,var/log,var/cache/pacman/pkg}
-mount "$EFI_PART" /mnt/boot
-mount -o ${BTRFS_OPTS},subvol=@home "$ROOT_PART" /mnt/home
-mount -o ${BTRFS_OPTS},subvol=@snapshots "$ROOT_PART" /mnt/.snapshots
-mount -o ${BTRFS_OPTS},subvol=@log "$ROOT_PART" /mnt/var/log
-mount -o ${BTRFS_OPTS},subvol=@cache "$ROOT_PART" /mnt/var/cache/pacman/pkg
+# --- 挂载 ---
+log "[4/10] 正在挂载..."
+if mountpoint -q /mnt; then
+  skip
+else
+  mount -o ${BTRFS_OPTS},subvol=@ "$ROOT_PART" /mnt
+  mkdir -p /mnt/{boot,home,.snapshots,var/log,var/cache/pacman/pkg}
+  mount "$EFI_PART" /mnt/boot
+  mount -o ${BTRFS_OPTS},subvol=@home "$ROOT_PART" /mnt/home
+  mount -o ${BTRFS_OPTS},subvol=@snapshots "$ROOT_PART" /mnt/.snapshots
+  mount -o ${BTRFS_OPTS},subvol=@log "$ROOT_PART" /mnt/var/log
+  mount -o ${BTRFS_OPTS},subvol=@cache "$ROOT_PART" /mnt/var/cache/pacman/pkg
+fi
 
 # --- 安装基础系统 ---
-log "[5/11] 正在安装基础系统..."
-pacstrap -K /mnt $PACKAGES
+log "[5/10] 正在安装基础系统..."
+if [[ -x /mnt/usr/bin/pacman ]]; then
+  skip
+else
+  pacstrap -K /mnt $PACKAGES
+fi
 
 # --- 生成 fstab ---
-log "[6/11] 正在生成 fstab..."
-genfstab -U /mnt > /mnt/etc/fstab
+log "[6/10] 正在生成 fstab..."
+if [[ -s /mnt/etc/fstab ]] && grep -q "$ROOT_PART\|subvol=@" /mnt/etc/fstab 2>/dev/null; then
+  skip
+else
+  genfstab -U /mnt > /mnt/etc/fstab
+fi
 echo "--- 生成的 fstab ---"
 cat /mnt/etc/fstab
 echo "--- fstab 结束 ---"
 
-# --- 写入 chroot 脚本 ---
-log "[7/11] 正在配置系统..."
-cat > /mnt/tmp/setup.sh <<'SETUP_SCRIPT'
+# --- chroot 配置 ---
+log "[7/10] 正在配置系统..."
+if [[ -f /mnt/root/.setup_done ]]; then
+  skip
+else
+  cat > /mnt/root/setup.sh <<'SETUP_SCRIPT'
 #!/bin/bash
 set -euo pipefail
 
@@ -150,7 +174,9 @@ echo "$HOSTNAME_VAL" > /etc/hostname
 
 # 用户
 echo "root:$ROOT_PW" | chpasswd
-useradd -m -G wheel -s "$USER_SHELL" "$USERNAME"
+if ! id "$USERNAME" &>/dev/null; then
+  useradd -m -G wheel -s "$USER_SHELL" "$USERNAME"
+fi
 echo "$USERNAME:$USER_PW" | chpasswd
 sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 
@@ -158,7 +184,7 @@ sed -i 's/^# %wheel ALL=(ALL:ALL) ALL/%wheel ALL=(ALL:ALL) ALL/' /etc/sudoers
 bootctl install
 
 cat > /boot/loader/loader.conf <<EOF
-default auto-windows
+default arch.conf
 timeout 3
 console-mode max
 editor  no
@@ -205,33 +231,30 @@ systemctl enable btrfs-scrub@-.timer
 systemctl enable ufw
 systemctl enable bluetooth
 systemctl enable systemd-boot-update.service
+systemctl enable sddm
 
-# fcitx5 环境变量（uwsm 管理的 Hyprland 用 ~/.config/uwsm/env）
-# Wayland 下不设 GTK_IM_MODULE，改用 gtk settings.ini
-mkdir -p "/home/$USERNAME/.config/uwsm"
-cat > "/home/$USERNAME/.config/uwsm/env" <<EOF
-export QT_IM_MODULES="wayland;fcitx"
-export QT_IM_MODULE=fcitx
-export XMODIFIERS=@im=fcitx
-export SDL_IM_MODULE=fcitx
-export INPUT_METHOD=fcitx
-export GLFW_IM_MODULE=ibus
+# fcitx5 环境变量（KDE Plasma Wayland）
+mkdir -p "/home/$USERNAME/.config/environment.d"
+cat > "/home/$USERNAME/.config/environment.d/fcitx5.conf" <<EOF
+QT_IM_MODULES=wayland;fcitx
+QT_IM_MODULE=fcitx
+XMODIFIERS=@im=fcitx
+SDL_IM_MODULE=fcitx
+INPUT_METHOD=fcitx
+GLFW_IM_MODULE=ibus
 EOF
 
-mkdir -p "/home/$USERNAME/.config/gtk-3.0"
-cat > "/home/$USERNAME/.config/gtk-3.0/settings.ini" <<EOF
-[Settings]
-gtk-im-module = fcitx
-EOF
+chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config/environment.d"
 
-chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/.config/uwsm" "/home/$USERNAME/.config/gtk-3.0"
+touch /root/.setup_done
 SETUP_SCRIPT
 
-chmod +x /mnt/tmp/setup.sh
-arch-chroot /mnt /tmp/setup.sh \
-  "$TIMEZONE" "$LANG_SET" "$HOSTNAME" "$USERNAME" "$USER_SHELL" \
-  "$ROOT_PW" "$USER_PW" "$ROOT_PART"
-rm -f /mnt/tmp/setup.sh
+  chmod +x /mnt/root/setup.sh
+  arch-chroot /mnt /root/setup.sh \
+    "$TIMEZONE" "$LANG_SET" "$HOSTNAME" "$USERNAME" "$USER_SHELL" \
+    "$ROOT_PW" "$USER_PW" "$ROOT_PART"
+  rm -f /mnt/root/setup.sh
+fi
 
 # --- ufw 默认规则（写配置文件而非运行命令）---
 sed -i 's/^DEFAULT_INPUT_POLICY=.*/DEFAULT_INPUT_POLICY="DROP"/' /mnt/etc/default/ufw
@@ -239,11 +262,10 @@ sed -i 's/^DEFAULT_OUTPUT_POLICY=.*/DEFAULT_OUTPUT_POLICY="ACCEPT"/' /mnt/etc/de
 sed -i 's/^ENABLED=.*/ENABLED=yes/' /mnt/etc/ufw/ufw.conf
 
 # --- 配置软件仓库 ---
-log "[8/11] 正在配置软件仓库..."
+log "[8/10] 正在配置软件仓库..."
 
-# archlinuxcn
 ARCHLINUXCN=$(j '.archlinuxcn // false')
-if [[ "$ARCHLINUXCN" == "true" ]]; then
+if [[ "$ARCHLINUXCN" == "true" ]] && ! grep -q '\[archlinuxcn\]' /mnt/etc/pacman.conf; then
   cat >> /mnt/etc/pacman.conf <<'CNEOF'
 
 [archlinuxcn]
@@ -257,18 +279,22 @@ sed -i '/^#\[multilib\]/{s/^#//;n;s/^#//}' /mnt/etc/pacman.conf
 # 刷新仓库并安装额外软件
 arch-chroot /mnt pacman -Sy --noconfirm
 if [[ "$ARCHLINUXCN" == "true" ]]; then
-  arch-chroot /mnt pacman -S --noconfirm archlinuxcn-keyring
+  arch-chroot /mnt pacman -S --noconfirm --needed archlinuxcn-keyring
 fi
-arch-chroot /mnt pacman -S --noconfirm steam xdg-desktop-portal-hyprland xdg-desktop-portal-gtk
+arch-chroot /mnt pacman -S --noconfirm --needed steam xdg-desktop-portal-gtk
 
 # --- 复制安装文件到用户目录 ---
-log "[9/11] 正在复制安装文件..."
-cp -rf "$SCRIPT_DIR" "/mnt/home/$USERNAME/arch-install"
-arch-chroot /mnt chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/arch-install"
-arch-chroot /mnt chmod +x "/home/$USERNAME/arch-install/post-install.sh"
+log "[9/10] 正在复制安装文件..."
+if [[ -d "/mnt/home/$USERNAME/arch-install" ]]; then
+  skip
+else
+  cp -rf "$SCRIPT_DIR" "/mnt/home/$USERNAME/arch-install"
+  arch-chroot /mnt chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/arch-install"
+  arch-chroot /mnt chmod +x "/home/$USERNAME/arch-install/post-install.sh"
+fi
 
 # --- 完成 ---
-log "[10/11] 安装完成！"
+log "[10/10] 安装完成！"
 echo ""
 echo "接下来："
 echo "  1. umount -R /mnt"
