@@ -4,6 +4,10 @@ set -euo pipefail
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 
+if ! command -v paru &>/dev/null; then
+  echo "错误：paru 未安装，请先运行 post-install.sh。" >&2; exit 1
+fi
+
 log "[1/2] 正在安装百度网盘..."
 paru -S --noconfirm --needed baidunetdisk-bin
 

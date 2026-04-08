@@ -10,7 +10,7 @@ skip() { log "  ↳ 已完成，跳过。"; }
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CFG="$SCRIPT_DIR/config.json"
 
-command -v jq &>/dev/null || { echo "正在安装 jq..."; pacman -Sy --noconfirm jq; }
+command -v jq &>/dev/null || { echo "错误：jq 未安装，请使用包含 jq 的 Arch Live ISO。" >&2; exit 1; }
 
 j() { jq -r "$1" "$CFG"; }
 
@@ -281,7 +281,7 @@ arch-chroot /mnt pacman -Sy --noconfirm
 if [[ "$ARCHLINUXCN" == "true" ]]; then
   arch-chroot /mnt pacman -S --noconfirm --needed archlinuxcn-keyring
 fi
-arch-chroot /mnt pacman -S --noconfirm --needed steam xdg-desktop-portal-gtk
+arch-chroot /mnt pacman -S --noconfirm --needed steam
 
 # --- 复制安装文件到用户目录 ---
 log "[9/10] 正在复制安装文件..."
@@ -291,7 +291,15 @@ else
   cp -rf "$SCRIPT_DIR" "/mnt/home/$USERNAME/arch-install"
   arch-chroot /mnt chown -R "$USERNAME:$USERNAME" "/home/$USERNAME/arch-install"
   arch-chroot /mnt chmod +x "/home/$USERNAME/arch-install/post-install.sh"
+  arch-chroot /mnt chmod +x "/home/$USERNAME/arch-install/aur-install.sh"
 fi
+
+# --- 清除 config.json 中的密码 ---
+log "正在清除配置文件中的密码..."
+arch-chroot /mnt su -c "
+  cd /home/$USERNAME/arch-install
+  jq '.root_password = \"\" | .user.password = \"\"' config.json > config.tmp && mv -f config.tmp config.json
+" "$USERNAME"
 
 # --- 完成 ---
 log "[10/10] 安装完成！"
