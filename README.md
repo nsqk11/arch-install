@@ -136,20 +136,21 @@ bash install.sh
 
 | 类别 | 软件 |
 |------|------|
-| 桌面 | KDE Plasma, Konsole, Dolphin |
+| 桌面 | KDE Plasma, Konsole, Dolphin, Okular, Gwenview, Ark, Kate, Filelight, KCalc, Partition Manager |
 | 浏览器 | Firefox (含中文语言包) |
 | 办公 | LibreOffice Fresh (含中文) |
 | 影音 | mpv, PipeWire |
 | 输入法 | fcitx5 + chinese-addons + configtool + gtk |
 | 字体 | noto-fonts-cjk |
 | 显卡 | mesa, vulkan-radeon |
-| 系统 | zram-generator, ufw, btrfs-progs |
+| 系统 | zram-generator, ufw, btrfs-progs, htop, btop, fastfetch |
 | 网络存储 | cifs-utils (Samba), ntfs-3g |
 | 蓝牙 | bluez, bluez-utils |
-| 连接 | KDE Connect |
+| 连接 | KDE Connect, openssh |
 | 压缩 | unzip, unrar, p7zip |
 | 开发 | git, base-devel, vim |
 | Shell | zsh |
+| 工具 | wget, rsync, less, tree, wl-clipboard, pacman-contrib, reflector |
 
 ### post-install.sh（archlinuxcn + 官方 repo）
 
