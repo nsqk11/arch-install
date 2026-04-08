@@ -6,7 +6,7 @@
 
 [![Arch Linux](https://img.shields.io/badge/Arch_Linux-1793D1?logo=archlinux&logoColor=white)](#)
 [![Kernel](https://img.shields.io/badge/Kernel-linux--zen-blue)](#系统架构)
-[![Desktop](https://img.shields.io/badge/Desktop-HyDE_(Hyprland)-blueviolet)](#桌面环境)
+[![Desktop](https://img.shields.io/badge/Desktop-KDE_Plasma-1d99f3)](#桌面环境)
 [![Filesystem](https://img.shields.io/badge/FS-Btrfs-green)](#磁盘布局)
 
 *一键安装 → 重启 → 运行 post-install → 开箱即用。*
@@ -20,11 +20,13 @@
 | | Feature | Description |
 |---|---------|-------------|
 | 📦 | **配置驱动** | 所有参数集中在 `config.json`，脚本零硬编码 |
+| 🔁 | **断点续跑** | 出错修复后重新运行，已完成步骤自动跳过 |
 | 🗂️ | **Btrfs 子卷** | @, @home, @snapshots, @log, @cache 五子卷布局 |
-| 💾 | **双盘分离** | 系统盘 + 数据盘，Home 独立 NVMe |
-| 🔄 | **快照回滚** | Timeshift + Btrfs，翻车秒恢复 |
-| 🖥️ | **HyDE 桌面** | Hyprland + Waybar + Rofi，开箱即用 |
+| 🔄 | **快照回滚** | snapper + Btrfs，翻车秒恢复 |
+| 🖥️ | **KDE Plasma** | Wayland 桌面，开箱即用，全部来自官方 repo |
+| 🐚 | **Zsh 全家桶** | oh-my-zsh + powerlevel10k + 语法高亮 + 模糊搜索 |
 | 🇨🇳 | **中文就绪** | fcitx5 拼音 + CJK 字体 + 中文语言包 |
+| 🚫 | **无需 GitHub** | 主安装和 post-install 全部使用官方 repo / archlinuxcn |
 
 ---
 
@@ -36,17 +38,18 @@
 ├──────────────┬───────────────────────────────┤
 │  CPU         │  AMD (amd-ucode)              │
 │  GPU         │  AMD (mesa + vulkan-radeon)   │
-│  Disk 0      │  SATA SSD — System + Home      │
-│  Disk 1      │  NVMe — Windows                │
+│  Disk sdb    │  SATA SSD — Arch Linux        │
+│  Disk nvme   │  NVMe SSD — Windows           │
 ├──────────────┴───────────────────────────────┤
 │              Software Stack                   │
 ├──────────────┬───────────────────────────────┤
 │  Kernel      │  linux-zen                    │
 │  Boot        │  systemd-boot                 │
 │  Filesystem  │  Btrfs (zstd:3 compression)   │
-│  Swap        │  zram (min(ram/2, 4096), zstd)  │
+│  Swap        │  zram (min(ram/2, 4096), zstd) │
 │  Firewall    │  ufw (DROP input)             │
-│  Desktop     │  HyDE (Hyprland)              │
+│  Desktop     │  KDE Plasma (Wayland)         │
+│  Shell       │  zsh + oh-my-zsh + p10k       │
 │  Input       │  fcitx5                       │
 │  Audio       │  PipeWire                     │
 └──────────────┴───────────────────────────────┘
@@ -58,9 +61,10 @@
 
 ```
 arch-install/
-├── 📄 config.json        # 安装配置（磁盘、网络、软件包、语言）
+├── 📄 config.json        # 安装配置（磁盘、密码、软件包、语言）
 ├── 🔧 install.sh         # 主安装脚本（Live USB 环境运行）
 ├── 🔧 post-install.sh    # 首次启动后脚本（普通用户运行）
+├── 🔧 aur-install.sh     # AUR 软件（需要 GitHub，延后安装）
 └── 📄 README.md
 ```
 
@@ -69,7 +73,7 @@ arch-install/
 ## 💿 磁盘布局
 
 ```
-sda (SATA SSD)
+sdb (SATA SSD)
 ├── 1: EFI (1G, FAT32)    → /boot
 └── 2: Btrfs
     ├── @          → /
@@ -78,6 +82,8 @@ sda (SATA SSD)
     ├── @log       → /var/log
     └── @cache     → /var/cache/pacman/pkg
 ```
+
+Windows 在另一块 NVMe 上，通过 BIOS 启动菜单（MSI 按 F11）切换。
 
 ---
 
@@ -89,75 +95,100 @@ sda (SATA SSD)
 
 ```jsonc
 {
-  "wifi": { "ssid": "你的WiFi名", "password": "你的WiFi密码" },
-  "disk": { "device": "/dev/sda", "efi_size": "1G" },
+  "disk": { "device": "/dev/sdb", "efi_size": "1G" },
   "hostname": "arch",
-  "user": { "name": "yawei", "shell": "/bin/bash" }
+  "user": { "name": "archie", "shell": "/bin/zsh", "password": "你的密码" },
+  "root_password": "ROOT密码"
 }
 ```
 
-### 2. 安装
+### 2. 安装（Live USB 环境）
 
 ```bash
 bash install.sh
 ```
 
-脚本会自动完成：分区 → 格式化 → 创建子卷 → pacstrap → 配置引导 → 启用服务
+- 台式机插网线即可，Wi-Fi 可选
+- 分区/格式化有交互确认，可跳过（断点续跑）
+- 其他步骤已完成则自动跳过
 
-### 3. 重启后
+### 3. 重启后（普通用户）
 
 ```bash
-nmcli device wifi connect "SSID" password "密码"
 ~/arch-install/post-install.sh
 ```
 
-post-install 会安装：yay → 百度网盘 / 微信 → KDE Connect 防火墙规则 → HyDE 桌面
+安装：paru → snapper → oh-my-zsh + p10k + zsh 插件 → 32 位显卡库 → KDE Connect 防火墙规则
+
+### 4. AUR 软件（可选，需要能访问 GitHub）
+
+```bash
+~/arch-install/aur-install.sh
+```
+
+安装：百度网盘、微信
 
 ---
 
 ## 📦 软件清单
 
-### pacstrap 安装
+### install.sh（pacstrap + archlinuxcn）
 
 | 类别 | 软件 |
 |------|------|
+| 桌面 | KDE Plasma, Konsole, Dolphin |
 | 浏览器 | Firefox (含中文语言包) |
 | 办公 | LibreOffice Fresh (含中文) |
-| 影音 | mpv, PipeWire (alsa/pulse/wireplumber) |
-| 输入法 | fcitx5 + chinese-addons + gtk/qt |
+| 影音 | mpv, PipeWire |
+| 输入法 | fcitx5 + chinese-addons + configtool + gtk |
 | 字体 | noto-fonts-cjk |
-| 系统 | timeshift, zram-generator, ufw, btrfs-progs |
-| 网络存储 | cifs-utils (Samba 挂载) |
+| 显卡 | mesa, vulkan-radeon |
+| 系统 | zram-generator, ufw, btrfs-progs |
+| 网络存储 | cifs-utils (Samba), ntfs-3g |
 | 蓝牙 | bluez, bluez-utils |
-| 连接 | kdeconnect |
+| 连接 | KDE Connect |
 | 压缩 | unzip, unrar, p7zip |
 | 开发 | git, base-devel, vim |
-| 其他 | ntfs-3g, bash-completion |
+| Shell | zsh |
 
-### post-install 安装 (AUR)
+### post-install.sh（archlinuxcn + 官方 repo）
+
+| 软件 | 来源 |
+|------|------|
+| paru | archlinuxcn |
+| snapper | extra |
+| oh-my-zsh-git | archlinuxcn |
+| zsh-theme-powerlevel10k | archlinuxcn |
+| zsh-syntax-highlighting | extra |
+| zsh-autosuggestions | extra |
+| zsh-completions | extra |
+| zsh-history-substring-search | extra |
+| fzf | extra |
+| pkgfile | extra |
+| lib32-mesa, lib32-vulkan-radeon | multilib |
+| Steam | multilib |
+
+### aur-install.sh（需要 GitHub）
 
 | 软件 | 包名 |
 |------|------|
 | 百度网盘 | `baidunetdisk-bin` |
 | 微信 | `wechat-universal-bwrap` |
-| Steam | `steam` (multilib) |
-| Portal | `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` |
-| HyDE | git clone + install.sh |
 
 ---
 
 ## 🔄 翻车回滚
 
 ```
-能进系统？──▶ sudo timeshift --restore
+能进系统？──▶ sudo snapper -c root undochange <编号>
     │
     ▼ 不能
-能进 boot 菜单？──▶ 选 fallback initramfs ──▶ timeshift --restore
+能进 boot 菜单？──▶ 选 fallback initramfs ──▶ snapper 回滚
     │
     ▼ 不能
-有安装 U 盘？──▶ chroot ──▶ timeshift --restore
+有安装 U 盘？──▶ chroot ──▶ snapper 回滚
     │
-    ▼ timeshift 也挂了
+    ▼ snapper 也挂了
 手动 btrfs snapshot：mv @broken, snapshot @snapshots/... → @
 ```
 
@@ -165,33 +196,10 @@ post-install 会安装：yay → 百度网盘 / 微信 → KDE Connect 防火墙
 
 | 时机 | 操作 |
 |------|------|
-| 装完系统稳定后 | `sudo timeshift --create --comments "基线"` |
-| 每次 `pacman -Syu` 前 | `sudo timeshift --create` |
-| 安装重要软件前 | `sudo timeshift --create` |
-| 改系统配置前 | `sudo timeshift --create` |
-
----
-
-## ⌨️ HyDE 快捷键速查
-
-| 快捷键 | 功能 |
-|--------|------|
-| `Super + /` | **显示所有快捷键** |
-| `Super + T` | 终端 |
-| `Super + A` | 应用启动器 (rofi) |
-| `Super + B` | 浏览器 |
-| `Super + E` | 文件管理器 |
-| `Ctrl + Q` | 关闭窗口 |
-| `Super + W` | 切换浮动/平铺 |
-| `Super + 1~0` | 切换工作区 |
-| `Super + Shift + T` | 选择主题 |
-| `Super + Shift + W` | 选择壁纸 |
-| `Super + P` | 截图 (区域) |
-| `Super + V` | 剪贴板历史 |
-| `Super + L` | 锁屏 |
-
-> [!TIP]
-> 自定义配置写在 `~/.config/hypr/userprefs.conf`，HyDE 更新不会覆盖。
+| 装完系统稳定后 | `sudo snapper -c root create -d "基线"` |
+| 每次 `pacman -Syu` 前 | `sudo snapper -c root create -d "更新前"` |
+| 安装重要软件前 | `sudo snapper -c root create` |
+| 改系统配置前 | `sudo snapper -c root create` |
 
 ---
 
