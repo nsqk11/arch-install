@@ -4,38 +4,45 @@ set -euo pipefail
 
 log() { echo "[$(date '+%H:%M:%S')] $*"; }
 
-# --- 安装 yay ---
-if ! command -v yay &>/dev/null; then
-  log "[1/4] 正在安装 yay..."
-  git clone https://aur.archlinux.org/yay.git /tmp/yay
-  (cd /tmp/yay && makepkg -si --noconfirm)
-  rm -rf /tmp/yay
+# --- 安装 paru（来自 archlinuxcn）---
+if ! command -v paru &>/dev/null; then
+  log "[1/6] 正在安装 paru..."
+  sudo pacman -S --noconfirm paru
 else
-  log "[1/4] yay 已安装，跳过。"
+  log "[1/6] paru 已安装，跳过。"
 fi
 
-# --- 安装用户软件 ---
-log "[2/4] 正在安装应用（百度网盘、微信）..."
-yay -S --noconfirm baidunetdisk-bin wechat-universal-bwrap
+# --- 安装 AUR / 32 位软件 ---
+log "[2/6] 正在安装 snapper、oh-my-zsh、32 位显卡库..."
+sudo pacman -S --noconfirm --needed snapper
+
+log "[3/6] 正在安装 oh-my-zsh 和 32 位 Mesa/Vulkan..."
+sudo pacman -S --noconfirm --needed oh-my-zsh-git zsh-theme-powerlevel10k zsh-syntax-highlighting zsh-autosuggestions zsh-completions zsh-history-substring-search fzf pkgfile lib32-mesa lib32-vulkan-radeon
+sudo pkgfile --update
+cp /usr/share/oh-my-zsh/zshrc ~/.zshrc
+sed -i 's/^ZSH_THEME=.*/ZSH_THEME="powerlevel10k\/powerlevel10k"/' ~/.zshrc
+cat >> ~/.zshrc <<'EOF'
+source /usr/share/zsh-theme-powerlevel10k/powerlevel10k.zsh-theme
+source /usr/share/zsh/plugins/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+source /usr/share/zsh/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh
+source /usr/share/zsh/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh
+source /usr/share/fzf/key-bindings.zsh
+source /usr/share/fzf/completion.zsh
+source /usr/share/doc/pkgfile/command-not-found.zsh
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
+EOF
 
 # --- 配置防火墙规则 ---
-log "[3/4] 正在配置防火墙（KDE Connect 端口）..."
+log "[4/5] 正在配置防火墙（KDE Connect 端口）..."
 sudo ufw allow 1714:1764/udp
 sudo ufw allow 1714:1764/tcp
 
-# --- 安装 HyDE ---
-log "[4/4] 正在安装 HyDE (Hyprland 桌面)，这一步耗时较长..."
-if [[ ! -d ~/HyDE ]]; then
-  git clone --depth 1 https://github.com/HyDE-Project/HyDE ~/HyDE
-fi
-cd ~/HyDE/Scripts
-./install.sh
-
 # --- 完成 ---
-log "安装完成！重启后即可使用 Hyprland。"
+log "安装完成！"
 echo ""
 echo "提示："
 echo "  - 输入法：运行 fcitx5-configtool，添加拼音输入法"
 echo "  - 夸克网盘：使用浏览器访问 https://pan.quark.cn"
-echo "  - 系统快照：运行 sudo timeshift --create 创建第一个快照"
+echo "  - 系统快照：运行 sudo snapper -c root create -d \"首次快照\""
 echo "  - Samba 挂载：sudo mount -t cifs //树莓派IP/共享名 /mnt/nas -o username=用户名,password=密码,uid=1000,gid=1000"
