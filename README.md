@@ -8,10 +8,36 @@
 [![Kernel](https://img.shields.io/badge/Kernel-linux--zen-blue)](#系统架构)
 [![Desktop](https://img.shields.io/badge/Desktop-KDE_Plasma-1d99f3)](#桌面环境)
 [![Filesystem](https://img.shields.io/badge/FS-Btrfs-green)](#磁盘布局)
+[![License](https://img.shields.io/github/license/nsqk11/arch-install)](#)
 
-*一键安装 → 重启 → 运行 post-install → 开箱即用。*
+*三步安装 → 开箱即用的 Arch Linux + KDE Plasma 桌面。*
 
 </div>
+
+> [!WARNING]
+> 此脚本会**擦除目标磁盘上的所有数据**。请确保已备份重要文件，并在 `config.json` 中正确配置目标磁盘。建议先在虚拟机中测试。
+
+---
+
+## ⚡ Quick Start
+
+```bash
+# 1. Live USB 环境
+bash install.sh
+# 2. chroot
+arch-chroot /mnt bash /root/arch-install/chroot-setup.sh
+# 3. 重启后
+~/arch-install/post-install.sh
+```
+
+---
+
+## 📋 Prerequisites
+
+- Arch Linux Live USB（最新版）
+- UEFI 模式启动
+- 有线网络连接（推荐）或 Wi-Fi
+- 目标磁盘（脚本会擦除整个磁盘）
 
 ---
 

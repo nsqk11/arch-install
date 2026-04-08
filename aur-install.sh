@@ -1,11 +1,13 @@
 #!/bin/bash
 # AUR 软件安装脚本：需要能访问 GitHub 时运行
+# Usage: ~/arch-install/aur-install.sh
 set -euo pipefail
 
-log() { echo "[$(date '+%H:%M:%S')] $*"; }
+GREEN='\033[0;32m'; RED='\033[0;31m'; NC='\033[0m'
+log() { echo -e "[$(date '+%H:%M:%S')] ${GREEN}$*${NC}"; }
 
 if ! command -v paru &>/dev/null; then
-  echo "错误：paru 未安装，请先运行 post-install.sh。" >&2; exit 1
+  echo -e "${RED}错误：paru 未安装，请先运行 post-install.sh。${NC}" >&2; exit 1
 fi
 
 log "[1/2] 正在安装百度网盘..."
