@@ -19,7 +19,7 @@
     "password": "改成你的密码"
   },
   "root_password": "改成ROOT密码",
-  "packages": [
+  "pacstrap_packages": [
     "base",
     "linux-zen",
     "linux-zen-headers",
@@ -30,6 +30,9 @@
     "vim",
     "git",
     "base-devel",
+    "sudo"
+  ],
+  "chroot_packages": [
     "man-db",
     "man-pages",
     "zram-generator",
@@ -74,7 +77,15 @@
     "kate",
     "filelight",
     "kcalc",
-    "partitionmanager"
+    "partitionmanager",
+    "steam",
+    "lib32-mesa",
+    "lib32-vulkan-radeon"
   ],
-  "archlinuxcn": true
+  "archlinuxcn": true,
+  "archlinuxcn_packages": [
+    "paru",
+    "oh-my-zsh-git",
+    "zsh-theme-powerlevel10k"
+  ]
 }
