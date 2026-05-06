@@ -46,24 +46,6 @@
             "type": "primary"
           }
         ]
-      },
-      {
-        "device": "/dev/nvme1n1",
-        "partitions": [
-          {
-            "btrfs": [],
-            "flags": [],
-            "fs_type": "btrfs",
-            "size": {
-              "unit": "Percentage",
-              "value": 100
-            },
-            "mount_options": ["compress=zstd", "noatime"],
-            "mountpoint": "/home",
-            "status": "create",
-            "type": "primary"
-          }
-        ]
       }
     ]
   },
@@ -120,6 +102,7 @@
     "bluez-utils",
     "kde-connect",
     "steam",
+    "archlinuxcn-keyring",
     "paru"
   ],
   "parallel downloads": 5,

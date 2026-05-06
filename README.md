@@ -7,7 +7,7 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 ```
 .
 ├── user_configuration.json   # System config (disk, DE, packages, repos)
-├── user_credentials.json     # User account (edit password before use)
+├── user_credentials.json     # User account (edit password before use!)
 └── post-install.sh           # First-boot setup (ufw, zram, fcitx5)
 ```
 
@@ -18,7 +18,6 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 | Kernel | linux-zen |
 | Bootloader | systemd-boot |
 | Filesystem | Btrfs (subvols: @, @home, @snapshots, @log, @cache) |
-| Disks | nvme0n1 (system) + nvme1n1 (data → /home) |
 | Desktop | KDE Plasma (Wayland) + SDDM |
 | Audio | PipeWire |
 | GPU | AMD (mesa + vulkan-radeon, 32-bit included) |
@@ -31,13 +30,23 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 
 ### 1. Boot the Arch ISO
 
-### 2. Run archinstall
+### 2. Edit credentials
+
+> ⚠️ **Change the password in `user_credentials.json` before installing!**
+
+Use a plaintext password in the `!password` field, or generate a hash:
+
+```bash
+openssl passwd -6    # then put the hash in "enc_password" field
+```
+
+### 3. Run archinstall
 
 ```bash
 archinstall --config user_configuration.json --creds user_credentials.json
 ```
 
-### 3. Reboot and run post-install
+### 4. Reboot and run post-install
 
 ```bash
 chmod +x post-install.sh
@@ -49,19 +58,19 @@ This configures:
 - **zram-generator** — `/etc/systemd/zram-generator.conf` with zstd compression, size = ram/2
 - **fcitx5** — environment variables in `/etc/environment.d/fcitx5.conf`
 
-### 4. Reboot again
+### 5. Reboot again
 
 zram and fcitx5 take effect after reboot.
 
 ## Customization
 
-- **Password**: Edit `user_credentials.json` before installing (or use `--creds` interactively)
+- **Disk device**: Change `/dev/nvme0n1` to match your hardware
 - **Hostname**: Change `"hostname"` in `user_configuration.json`
 - **Packages**: Add/remove entries in the `"packages"` array
-- **Disk devices**: Adjust `/dev/nvme0n1` and `/dev/nvme1n1` to match your hardware
+- **AUR packages**: Install via `paru` after first boot (paru comes from archlinuxcn)
 
 ## Notes
 
-- `paru` is installed from the archlinuxcn repo (not AUR)
-- The second NVMe is formatted as a single Btrfs partition mounted at `/home`
-- If you have a single disk, remove the second entry from `device_modifications`
+- `paru` is installed from the archlinuxcn repo, not AUR
+- `archlinuxcn-keyring` is listed before `paru` to ensure signature verification works
+- Single-disk layout with Btrfs subvolumes for easy snapshotting
