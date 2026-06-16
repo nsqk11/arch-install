@@ -22,4 +22,8 @@ QT_IM_MODULE=fcitx
 XMODIFIERS=@im=fcitx
 EOF
 
+# --- locale ---
+sudo sed -i 's/#zh_CN.UTF-8 UTF-8/zh_CN.UTF-8 UTF-8/; s/#zh_TW.UTF-8 UTF-8/zh_TW.UTF-8 UTF-8/' /etc/locale.gen
+sudo locale-gen
+
 echo "Done. Reboot to apply zram and fcitx5 changes."

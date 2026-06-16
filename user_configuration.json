@@ -46,10 +46,27 @@
             "type": "primary"
           }
         ]
+      },
+      {
+        "device": "/dev/sdb",
+        "partitions": [
+          {
+            "flags": [],
+            "fs_type": "btrfs",
+            "size": {
+              "unit": "Percentage",
+              "value": 100
+            },
+            "mount_options": ["compress=zstd", "noatime"],
+            "mountpoint": "/data",
+            "status": "create",
+            "type": "primary"
+          }
+        ]
       }
     ]
   },
-  "hostname": "archlinux",
+  "hostname": "R5-5600G",
   "kernels": ["linux-zen"],
   "locale_config": {
     "kb_layout": "us",
@@ -95,11 +112,9 @@
     "mpv",
     "unzip",
     "unrar",
-    "p7zip",
+    "7zip",
     "ufw",
     "zram-generator",
-    "bluez",
-    "bluez-utils",
     "kde-connect",
     "steam",
     "kde-system",
@@ -112,8 +127,6 @@
     "okular",
     "ffmpegthumbs",
     "kio-extras",
-    "libreoffice-fresh",
-    "libreoffice-fresh-zh-cn",
     "archlinuxcn-keyring",
     "paru"
   ],
@@ -127,12 +140,12 @@
     }
   },
   "script": "guided",
-  "services": ["bluetooth", "ufw"],
+  "services": ["ufw"],
   "silent": false,
   "swap": {
     "enabled": true,
     "algorithm": "zstd"
   },
-  "timezone": "Asia/Shanghai",
+  "timezone": "Asia/Chongqing",
   "version": "2.8.6"
 }

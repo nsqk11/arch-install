@@ -8,7 +8,7 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 .
 ├── user_configuration.json   # System config (disk, DE, packages, repos)
 ├── user_credentials.json     # User account (edit password before use!)
-└── post-install.sh           # First-boot setup (ufw, zram, fcitx5)
+└── post-install.sh           # First-boot setup (ufw, zram, fcitx5, locale)
 ```
 
 ## System Overview
@@ -17,7 +17,7 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 |-----------|--------|
 | Kernel | linux-zen |
 | Bootloader | systemd-boot |
-| Filesystem | Btrfs (subvols: @, @home, @snapshots, @log, @cache) |
+| Filesystem | Btrfs — nvme0n1: subvols (@, @home, @snapshots, @log, @cache); sdb: /data |
 | Desktop | KDE Plasma (Wayland) + SDDM |
 | Audio | PipeWire |
 | GPU | AMD (mesa + vulkan-radeon, 32-bit included) |
@@ -57,14 +57,19 @@ This configures:
 - **ufw** — default deny incoming, allow outgoing, open KDE Connect ports (1714–1764 tcp/udp)
 - **zram-generator** — `/etc/systemd/zram-generator.conf` with zstd compression, size = ram/2
 - **fcitx5** — environment variables in `/etc/environment.d/fcitx5.conf`
+- **locale** — enables zh_CN.UTF-8 and zh_TW.UTF-8 in `/etc/locale.gen`
 
 ### 5. Reboot again
 
-zram and fcitx5 take effect after reboot.
+zram, fcitx5, and locale changes take effect after reboot.
+
+### 6. Post-install manual steps
+
+- Install WPS Office: `paru -S wps-office`
 
 ## Customization
 
-- **Disk device**: Change `/dev/nvme0n1` to match your hardware
+- **Disk devices**: Change `/dev/nvme0n1` and `/dev/sdb` to match your hardware
 - **Hostname**: Change `"hostname"` in `user_configuration.json`
 - **Packages**: Add/remove entries in the `"packages"` array
 - **AUR packages**: Install via `paru` after first boot (paru comes from archlinuxcn)
@@ -73,4 +78,5 @@ zram and fcitx5 take effect after reboot.
 
 - `paru` is installed from the archlinuxcn repo, not AUR
 - `archlinuxcn-keyring` is listed before `paru` to ensure signature verification works
-- Single-disk layout with Btrfs subvolumes for easy snapshotting
+- sdb (/data) is formatted as Btrfs with compress=zstd,noatime
+- sda (HDD) is not configured by archinstall — mount manually after installation
