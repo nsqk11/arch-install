@@ -58,6 +58,13 @@ This configures:
 - **zram-generator** — `/etc/systemd/zram-generator.conf` with zstd compression, size = ram/2
 - **fcitx5** — environment variables in `/etc/environment.d/fcitx5.conf`
 - **locale** — enables zh_CN.UTF-8 and zh_TW.UTF-8 in `/etc/locale.gen`
+- **paccache.timer** — weekly pacman cache cleanup (keeps last 3 versions per package)
+- **fstrim.timer** — weekly TRIM for SSDs
+- **btrfs-scrub** — monthly data integrity check for `/`, `/home`, `/data`
+- **snapper** — automatic Btrfs snapshots with cleanup (10 hourly / 7 daily / 4 weekly / 3 monthly)
+- **makepkg** — parallel compilation with all CPU cores
+- **pacman** — color output and parallel downloads enabled
+- **vm.swappiness=10** — tuned for zram (prefer zram over disk swap)
 
 ### 5. Reboot again
 
