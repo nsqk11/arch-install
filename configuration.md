@@ -33,7 +33,7 @@ archinstall --dry-run
 | ⚪ Bootloader | | `Systemd-boot` (default) |
 | ⚪ UKI | | `no` (default) |
 | ⚪ Swap | | `yes` (default) |
-| 🔵 Hostname | | `R5-5600G` (or your choice) |
+| 🔵 Hostname | | `<your hostname>` |
 | 🔵 Root password | | `<your password>` |
 | 🔵 User account | Username | `<your username>` |
 | | sudo | `yes` |
