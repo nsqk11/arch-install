@@ -20,25 +20,33 @@ archinstall --dry-run
 
 ### 2. Configure interactively
 
-| Item | Target |
-|------|--------|
-| Mirrors | China (USTC or TUNA) |
-| Locale | `en_US.UTF-8`, keyboard `us` |
-| Disk config | Manual partitioning ([see below](#disk-layout)) |
-| Disk encryption | None |
-| Bootloader | Systemd-boot |
-| Swap | yes (zram configured by post-install.sh) |
-| Hostname | `R5-5600G` (or your choice) |
-| Root password | set one |
-| User account | your username, sudo = yes |
-| Profile | Desktop → KDE Plasma, greeter = SDDM |
-| Audio | Pipewire |
-| Kernels | `linux-zen` |
-| Network | NetworkManager |
-| Parallel downloads | 5 |
-| Additional packages | see package list below |
-| Timezone | `Asia/Chongqing` |
-| NTP | yes |
+| Menu item | Sub-option | Value |
+|-----------|-----------|-------|
+| Archinstall language | | English |
+| Mirror region | | China (USTC or TUNA) |
+| | Custom mirrors (archlinuxcn) | name: `archlinuxcn`, url: `https://mirrors.ustc.edu.cn/archlinuxcn/$arch`, sign check: Required, sign option: TrustAll |
+| Locale | System language | `en_US.UTF-8` |
+| | Keyboard layout | `us` |
+| Disk config | | Manual partitioning ([see below](#disk-layout)) |
+| Disk encryption | | None |
+| Bootloader | | Systemd-boot |
+| UKI | | no |
+| Swap | | yes |
+| Hostname | | `R5-5600G` (or your choice) |
+| Root password | | set one |
+| User account | Username | your username |
+| | sudo | yes |
+| Profile | Type | Desktop |
+| | Desktop | KDE Plasma |
+| | Greeter | SDDM |
+| Audio | | Pipewire |
+| Kernels | | `linux-zen` |
+| Additional packages | | see package list below |
+| Parallel downloads | | 5 |
+| Network | | NetworkManager |
+| Timezone | | `Asia/Chongqing` |
+| NTP | | yes |
+| Additional repositories | | `multilib` |
 
 **Package list** (paste into the TUI "Additional packages" prompt):
 
@@ -81,20 +89,7 @@ When archinstall asks to proceed, **select No / abort**.
 cat /var/log/archinstall/user_configuration.json
 ```
 
-Save this file — you will need it for installation. After saving, manually add archlinuxcn to `"mirror_config"`:
-
-```json
-"custom_mirrors": [
-  {
-    "name": "archlinuxcn",
-    "url": "https://mirrors.ustc.edu.cn/archlinuxcn/$arch",
-    "sign_check": "Required",
-    "sign_option": "TrustAll"
-  }
-]
-```
-
-Also ensure `"additional-repositories": ["multilib"]` is present.
+Save this file — you will need it for installation.
 
 ---
 
