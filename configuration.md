@@ -40,6 +40,7 @@ archinstall --dry-run
 | 🔵 Profile | Type | `Desktop` |
 | | Desktop | `KDE Plasma` |
 | | Greeter | `sddm` |
+| | GPU driver | `AMD / ATI (open-source)` |
 | 🔵 Audio | | `Pipewire` |
 | 🔵 Kernels | | `linux-zen` |
 | 🔵 Additional packages | | [see package list below](#package-list) |
@@ -54,7 +55,7 @@ archinstall --dry-run
 Paste into the TUI "Additional packages" prompt:
 
 ```
-base-devel vim git amd-ucode btrfs-progs ntfs-3g mesa vulkan-radeon lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw zram-generator kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru snapper snap-pac pacman-contrib
+base-devel vim git amd-ucode btrfs-progs ntfs-3g lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw zram-generator kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru snapper snap-pac pacman-contrib
 ```
 
 ### 3. Disk partitioning (manual) {#disk-layout}
