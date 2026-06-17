@@ -42,14 +42,16 @@ archinstall --dry-run
 | | Greeter | `sddm` |
 | 🔵 Audio | | `Pipewire` |
 | 🔵 Kernels | | `linux-zen` |
-| 🔵 Additional packages | | see package list below |
+| 🔵 Additional packages | | [see package list below](#package-list) |
 | 🔵 Parallel downloads | | `5` |
 | 🔵 Network | | `NetworkManager` |
 | 🔵 Timezone | | `Asia/Chongqing` |
 | ⚪ NTP | | `yes` (default) |
 | 🔵 Additional repositories | | `multilib` |
 
-**Package list** (paste into the TUI "Additional packages" prompt):
+### Package list
+
+Paste into the TUI "Additional packages" prompt:
 
 ```
 base-devel vim git amd-ucode btrfs-progs ntfs-3g mesa vulkan-radeon lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw zram-generator kde-connect steam kde-system konsole ark kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru snapper snap-pac pacman-contrib
