@@ -34,8 +34,8 @@ archinstall --dry-run
 | ⚪ UKI | | `no` (default) |
 | ⚪ Swap | | `yes` (default) |
 | 🔵 Hostname | | `R5-5600G` (or your choice) |
-| 🔵 Root password | | set one |
-| 🔵 User account | Username | your username |
+| 🔵 Root password | | `<your password>` |
+| 🔵 User account | Username | `<your username>` |
 | | sudo | `yes` |
 | 🔵 Profile | Type | `Desktop` |
 | | Desktop | `KDE Plasma` |
