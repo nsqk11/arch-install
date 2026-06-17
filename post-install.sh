@@ -39,26 +39,6 @@ sudo systemctl enable paccache.timer
 # --- fstrim (weekly TRIM for SSD) ---
 sudo systemctl enable fstrim.timer
 
-# --- Btrfs scrub (monthly data integrity check) ---
-sudo systemctl enable btrfs-scrub@-.timer
-sudo systemctl enable btrfs-scrub@home.timer
-sudo systemctl enable btrfs-scrub@data.timer
-
-# --- snapper: auto snapshots + cleanup for root ---
-sudo snapper -c root create-config /
-# Keep: 10 hourly, 7 daily, 4 weekly, 3 monthly
-sudo snapper -c root set-config \
-  NUMBER_CLEANUP=yes \
-  NUMBER_LIMIT=10 \
-  TIMELINE_CREATE=yes \
-  TIMELINE_CLEANUP=yes \
-  TIMELINE_LIMIT_HOURLY=10 \
-  TIMELINE_LIMIT_DAILY=7 \
-  TIMELINE_LIMIT_WEEKLY=4 \
-  TIMELINE_LIMIT_MONTHLY=3
-sudo systemctl enable --now snapper-timeline.timer
-sudo systemctl enable --now snapper-cleanup.timer
-
 # --- makepkg parallel compilation ---
 sudo sed -i "s/^#*MAKEFLAGS=.*/MAKEFLAGS=\"-j\$(nproc)\"/" /etc/makepkg.conf
 

@@ -55,7 +55,7 @@ archinstall --dry-run
 Paste into the TUI "Additional packages" prompt:
 
 ```
-base-devel vim git amd-ucode btrfs-progs ntfs-3g lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw zram-generator kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru snapper snap-pac pacman-contrib
+base-devel vim git amd-ucode ntfs-3g lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw zram-generator kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru pacman-contrib
 ```
 
 ### 3. Disk partitioning (manual) {#disk-layout}
@@ -65,23 +65,8 @@ base-devel vim git amd-ucode btrfs-progs ntfs-3g lib32-mesa lib32-vulkan-radeon 
 | # | fs_type | Size | Mountpoint | Flags | Mount options |
 |---|---------|------|------------|-------|---------------|
 | 1 | fat32 | 512 MiB | `/boot` | Boot | — |
-| 2 | btrfs | remaining | `null` (subvolumes) | — | `compress=zstd`, `noatime` |
-
-Btrfs subvolumes for partition 2:
-
-| Name | Mountpoint |
-|------|------------|
-| `@` | `/` |
-| `@home` | `/home` |
-| `@.snapshots` | `/.snapshots` |
-| `@log` | `/var/log` |
-| `@cache` | `/var/cache` |
-
-**`/dev/sdb`** — data disk, wipe = yes:
-
-| # | fs_type | Size | Mountpoint | Mount options |
-|---|---------|------|------------|---------------|
-| 1 | btrfs | full disk | `/data` | `compress=zstd`, `noatime` |
+| 2 | ext4 | 64 GiB | `/` | — | `noatime` |
+| 3 | ext4 | remaining | `/home` | — | `noatime` |
 
 ### 4. Do NOT install
 
