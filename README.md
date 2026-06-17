@@ -45,7 +45,3 @@ Configures:
 - **makepkg** — parallel compilation with all CPU cores
 - **pacman** — color output + parallel downloads
 - **vm.swappiness=10** — tuned for zram
-
-## Notes
-
-- AUR packages (e.g. `wps-office`): install via `paru` after first boot
