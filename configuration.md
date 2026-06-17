@@ -55,7 +55,7 @@ archinstall --dry-run
 Paste into the TUI "Additional packages" prompt:
 
 ```
-base-devel vim git amd-ucode ntfs-3g lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru pacman-contrib
+base-devel vim git amd-ucode ntfs-3g lib32-mesa lib32-vulkan-radeon firefox firefox-i18n-zh-cn noto-fonts-cjk fcitx5 fcitx5-configtool fcitx5-chinese-addons fcitx5-gtk fcitx5-qt mpv unzip unrar 7zip ufw kde-connect steam kde-system kate kcalc filelight gwenview okular ffmpegthumbs kio-extras archlinuxcn-keyring paru pacman-contrib code
 ```
 
 ### 3. Disk partitioning (manual) {#disk-layout}
