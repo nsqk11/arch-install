@@ -1,6 +1,13 @@
 #!/bin/bash
 set -euo pipefail
 
+# --- amd-ucode: inject into systemd-boot entries ---
+for entry in /boot/loader/entries/*.conf; do
+    if ! grep -q "amd-ucode.img" "$entry"; then
+        sudo sed -i '/^initrd /i initrd  /amd-ucode.img' "$entry"
+    fi
+done
+
 # --- ufw rules ---
 sudo ufw default deny incoming
 sudo ufw default allow outgoing
