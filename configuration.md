@@ -65,8 +65,7 @@ base-devel vim git amd-ucode ntfs-3g lib32-mesa lib32-vulkan-radeon firefox fire
 | # | fs_type | Size | Mountpoint | Flags | Mount options |
 |---|---------|------|------------|-------|---------------|
 | 1 | fat32 | 512 MiB | `/boot` | Boot | — |
-| 2 | ext4 | 64 GiB | `/` | — | `noatime` |
-| 3 | ext4 | remaining | `/home` | — | `noatime` |
+| 2 | ext4 | remaining | `/` | — | `noatime` |
 
 ### 4. Do NOT install
 

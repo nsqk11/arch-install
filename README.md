@@ -16,7 +16,7 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 |-----------|--------|
 | Kernel | linux-zen |
 | Bootloader | systemd-boot |
-| Filesystem | ext4 — nvme0n1: /boot (512MiB), / (64GiB), /home (remaining) |
+| Filesystem | ext4 — nvme0n1: /boot (512MiB fat32), / (remaining) |
 | Desktop | KDE Plasma (Wayland) + SDDM |
 | Audio | PipeWire |
 | GPU | AMD (mesa + vulkan-radeon, 32-bit included) |
