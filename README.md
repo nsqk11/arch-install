@@ -7,7 +7,7 @@ Personal Arch Linux installation config powered by [archinstall](https://github.
 ```
 .
 ├── configuration.md   # Full installation guide (generate config + install steps)
-└── post-install.sh    # First-boot setup (ufw, zram, fcitx5, snapper, etc.)
+└── post-install.sh    # First-boot setup (ufw, zram, fcitx5, etc.)
 ```
 
 ## System Overview
@@ -48,6 +48,4 @@ Configures:
 
 ## Notes
 
-- `paru` is installed from archlinuxcn, not AUR
-- `/dev/sdb` (/data) uses Btrfs with compress=zstd,noatime
 - AUR packages (e.g. `wps-office`): install via `paru` after first boot
