@@ -20,32 +20,34 @@ archinstall --dry-run
 
 ### 2. Configure interactively
 
+🔵 = requires selection &nbsp; ⚪ = default / skip
+
 | Menu item | Sub-option | Value |
-|-----------|-----------|-------|
-| Archinstall language | | English |
-| Mirror region | | China (USTC or TUNA) |
-| Locale | System language | `en_US.UTF-8` |
+|-----------|------------|-------|
+| ⚪ Archinstall language | | `English` |
+| 🔵 Mirror region | | China (select USTC or TUNA mirrors) |
+| 🔵 Locale | System language | `en_US.UTF-8` |
 | | Keyboard layout | `us` |
-| Disk config | | Manual partitioning ([see below](#disk-layout)) |
-| Disk encryption | | None |
-| Bootloader | | Systemd-boot |
-| UKI | | no |
-| Swap | | yes |
-| Hostname | | `R5-5600G` (or your choice) |
-| Root password | | set one |
-| User account | Username | your username |
-| | sudo | yes |
-| Profile | Type | Desktop |
-| | Desktop | KDE Plasma |
-| | Greeter | SDDM |
-| Audio | | Pipewire |
-| Kernels | | `linux-zen` |
-| Additional packages | | see package list below |
-| Parallel downloads | | 5 |
-| Network | | NetworkManager |
-| Timezone | | `Asia/Chongqing` |
-| NTP | | yes |
-| Additional repositories | | `multilib` |
+| 🔵 Disk config | | Manual partitioning ([see below](#disk-layout)) |
+| ⚪ Disk encryption | | None |
+| ⚪ Bootloader | | `Systemd-boot` |
+| ⚪ UKI | | `no` |
+| ⚪ Swap | | `yes` |
+| 🔵 Hostname | | `R5-5600G` (or your choice) |
+| 🔵 Root password | | set one |
+| 🔵 User account | Username | your username |
+| | sudo | `yes` |
+| 🔵 Profile | Type | `Desktop` |
+| | Desktop | `KDE Plasma` |
+| | Greeter | `sddm` |
+| ⚪ Audio | | `Pipewire` |
+| ⚪ Kernels | | `linux-zen` |
+| 🔵 Additional packages | | see package list below |
+| ⚪ Parallel downloads | | `5` |
+| ⚪ Network | | `NetworkManager` |
+| 🔵 Timezone | | `Asia/Chongqing` |
+| ⚪ NTP | | `yes` |
+| 🔵 Additional repositories | | `multilib` |
 
 **Package list** (paste into the TUI "Additional packages" prompt):
 
