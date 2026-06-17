@@ -24,15 +24,15 @@ archinstall --dry-run
 
 | Menu item | Sub-option | Value |
 |-----------|------------|-------|
-| ⚪ Archinstall language | | `English` |
+| ⚪ Archinstall language | | `English` (default) |
 | 🔵 Mirror region | | China (select USTC or TUNA mirrors) |
 | 🔵 Locale | System language | `en_US.UTF-8` |
 | | Keyboard layout | `us` |
 | 🔵 Disk config | | Manual partitioning ([see below](#disk-layout)) |
 | ⚪ Disk encryption | | None |
-| ⚪ Bootloader | | `Systemd-boot` |
-| ⚪ UKI | | `no` |
-| ⚪ Swap | | `yes` |
+| ⚪ Bootloader | | `Systemd-boot` (default) |
+| ⚪ UKI | | `no` (default) |
+| ⚪ Swap | | `yes` (default) |
 | 🔵 Hostname | | `R5-5600G` (or your choice) |
 | 🔵 Root password | | set one |
 | 🔵 User account | Username | your username |
@@ -40,13 +40,13 @@ archinstall --dry-run
 | 🔵 Profile | Type | `Desktop` |
 | | Desktop | `KDE Plasma` |
 | | Greeter | `sddm` |
-| ⚪ Audio | | `Pipewire` |
-| ⚪ Kernels | | `linux-zen` |
+| 🔵 Audio | | `Pipewire` |
+| 🔵 Kernels | | `linux-zen` |
 | 🔵 Additional packages | | see package list below |
-| ⚪ Parallel downloads | | `5` |
-| ⚪ Network | | `NetworkManager` |
+| 🔵 Parallel downloads | | `5` |
+| 🔵 Network | | `NetworkManager` |
 | 🔵 Timezone | | `Asia/Chongqing` |
-| ⚪ NTP | | `yes` |
+| ⚪ NTP | | `yes` (default) |
 | 🔵 Additional repositories | | `multilib` |
 
 **Package list** (paste into the TUI "Additional packages" prompt):
