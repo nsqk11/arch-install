@@ -24,7 +24,6 @@ archinstall --dry-run
 |-----------|-----------|-------|
 | Archinstall language | | English |
 | Mirror region | | China (USTC or TUNA) |
-| | Custom mirrors (archlinuxcn) | name: `archlinuxcn`, url: `https://mirrors.ustc.edu.cn/archlinuxcn/$arch`, sign check: Required, sign option: TrustAll |
 | Locale | System language | `en_US.UTF-8` |
 | | Keyboard layout | `us` |
 | Disk config | | Manual partitioning ([see below](#disk-layout)) |
@@ -89,7 +88,18 @@ When archinstall asks to proceed, **select No / abort**.
 cat /var/log/archinstall/user_configuration.json
 ```
 
-Save this file — you will need it for installation.
+Save this file. Then manually add archlinuxcn to `"mirror_config"` in the JSON:
+
+```json
+"custom_mirrors": [
+  {
+    "name": "archlinuxcn",
+    "url": "https://mirrors.ustc.edu.cn/archlinuxcn/$arch",
+    "sign_check": "Required",
+    "sign_option": "TrustAll"
+  }
+]
+```
 
 ---
 
